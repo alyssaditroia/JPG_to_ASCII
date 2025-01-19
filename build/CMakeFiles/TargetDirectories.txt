@@ -1,0 +1,3 @@
+/Users/alyssaditroia/Desktop/JPG_to_ASCII/build/CMakeFiles/JPG_TO_ASCII.dir
+/Users/alyssaditroia/Desktop/JPG_to_ASCII/build/CMakeFiles/edit_cache.dir
+/Users/alyssaditroia/Desktop/JPG_to_ASCII/build/CMakeFiles/rebuild_cache.dir
