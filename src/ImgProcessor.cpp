@@ -1,11 +1,12 @@
 #include "ImgProcessor.h"
 
 void IMGProcessor::convertToASCII(const cv::Mat &image) {
-    const string grayScaleChars = " .:-=+*#%@";
-    //" .'`^\",:;I!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdkbhao*#MW&8%B@$";
+    const string grayScaleChars = " .-':=+!*#$%@";
+    //const string grayScaleChars = "@%$#*!+=:'_. ";
 
     //Image to GrayScale
     cv::Mat gray;
+    ostringstream asciiArt;
 
     if(image.channels() == 1){
         gray = image;
@@ -14,15 +15,16 @@ void IMGProcessor::convertToASCII(const cv::Mat &image) {
     }
 
     // Pixel dimension is scale x scale
-    int scale = 4;
+    int scale = 5;
 
     // Font scale and thickness
-    double fontScale = max(1.0, 100.0 / gray.cols); // Adjust font scale based on image width
+    // Adjust font scale based on image width
+    double fontScale = max(1.0, 100.0 / gray.cols);
     int fontThickness = 1;
 
     // ASCII image dimensions
     int charWidth = 4 * fontScale;
-    int charHeight = 5 * fontScale;
+    int charHeight = 6 * fontScale;
     int asciiWidth = gray.cols / scale * charWidth;
     int asciiHeight = gray.rows / scale * charHeight;
 
@@ -36,17 +38,19 @@ void IMGProcessor::convertToASCII(const cv::Mat &image) {
             int pixelValue = calcAverage(gray, i, j, scale);
             // Intensity is mapped to a character
             char asciiChar = grayScaleChars[ceil((grayScaleChars.length() - 1) * pixelValue / 255)];
-
+            asciiArt << asciiChar;
             // Character gets rendered on the blank image canvas
             string text(1, asciiChar);
             int x = (j / scale) * charWidth;
             int y = (i / scale + 1) * charHeight;
             cv::putText(asciiImage, text, cv::Point(x, y), cv::FONT_HERSHEY_SIMPLEX, fontScale, cv::Scalar(255, 255, 255), fontThickness);
         }
+        asciiArt << "\n";
     }
 
     // Displays the ASCII image
     cv::imshow("ASCII Art", asciiImage);
+    cout << asciiArt.str() << endl;
 }
 
 int IMGProcessor::calcAverage(const cv::Mat &image, int row, int col, int scale) {

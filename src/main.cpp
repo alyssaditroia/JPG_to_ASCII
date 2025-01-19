@@ -13,24 +13,22 @@
 int main() {
     cv::Mat img = cv::imread("resources/zippy.jpg");
     if (img.empty()) {
-        std::cerr << "Failed to load image!" << std::endl;
+        cout << "Failed to load image!" << endl;
         return -1;
     }
 
-    std::cout << "Original image dimensions: " << img.cols << " x " << img.rows << std::endl;
-
     IMGProcessor proc;
 
-    // SVD Compression
-    int k = 70; // Number of singular values to keep
-    cv::Mat compressedImg;
-    proc.compressImg(img, k, compressedImg);
-    std::cout << "Compressed image dimensions: " << compressedImg.cols << " x " << compressedImg.rows << std::endl;
-
+    //int k = 70; // Number of singular values to keep
+    //cv::Mat compressedImg;
+    //proc.compressImg(img, k, compressedImg);
+    //Original image
     cv::imshow("Original Image", img);
-    cv::imshow("Compressed Image", compressedImg);
+
+    //Black and white compressed imgae using SVD
+    //cv::imshow("Compressed Image", compressedImg);
     // Image to ASCII Art
-    proc.convertToASCII(compressedImg);
+    proc.convertToASCII(img);
 
     cv::waitKey(0);
     return 0;
