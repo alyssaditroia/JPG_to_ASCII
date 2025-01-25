@@ -1,54 +1,82 @@
 #include "ImgProcessor.h"
 
 void IMGProcessor::convertToASCII(const cv::Mat &image) {
-    const string grayScaleChars = " .-':=+!*#$%@";
-    //const string grayScaleChars = "@%$#*!+=:'_. ";
-
-    //Image to GrayScale
+    const string grayScaleChars = " `.-':_,=+!*s#$%@";
     cv::Mat gray;
     ostringstream asciiArt;
 
     if(image.channels() == 1){
         gray = image;
-    }else{
+    } else {
         cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
     }
 
-    // Pixel dimension is scale x scale
-    int scale = 5;
+    int scale = 5; // Block size for original image
 
-    // Font scale and thickness
-    // Adjust font scale based on image width
-    double fontScale = max(1.0, 100.0 / gray.cols);
+    // fontScale to make characters fit scale x scale
+    double fontScale = 1.0;
     int fontThickness = 1;
+    cv::Size textSize;
+    int baseline;
+
+    // Measure the size of a sample char
+    textSize = cv::getTextSize("W", cv::FONT_HERSHEY_SIMPLEX, fontScale, fontThickness, &baseline);
+    int currentCharWidth = textSize.width;
+    cout << "Current Char Width:" << currentCharWidth << "\n";
+    int currentCharHeight = textSize.height + baseline;
+    cout << "Current Char Height:" << currentCharHeight << "\n";
+
+    // Avoid dividing by zero
+    if (currentCharWidth == 0) currentCharWidth = 1;
+    if (currentCharHeight == 0) currentCharHeight = 1;
+
+    // Compute fontScale to fit scale x scale
+    double widthRatio = static_cast<double>(scale) / currentCharWidth;
+    cout << "width Ratio:" << widthRatio << "\n";
+    double heightRatio = static_cast<double>(scale) / currentCharHeight;
+    cout << "height Ratio:" << heightRatio << "\n";
+    fontScale *= std::min(widthRatio, heightRatio);
+    cout << "Font Scale: " << fontScale << "\n";
+
+    // Re-measure with adjusted fontScale
+    textSize = cv::getTextSize("W", cv::FONT_HERSHEY_SIMPLEX, fontScale, fontThickness, &baseline);
+    int charWidth = textSize.width;
+    cout << "New Char Width:" << currentCharWidth << "\n";
+    int charHeight = textSize.height + baseline;
+    cout << "New Char Height:" << currentCharHeight << "\n";
 
     // ASCII image dimensions
-    int charWidth = 4 * fontScale;
-    int charHeight = 6 * fontScale;
-    int asciiWidth = gray.cols / scale * charWidth;
-    int asciiHeight = gray.rows / scale * charHeight;
+    int asciiCols = (gray.cols + scale - 1) / scale;
+    int asciiRows = (gray.rows + scale - 1) / scale;
 
-    // Blank image for ASCII art
-    cv::Mat asciiImage(asciiHeight, asciiWidth, CV_8UC3, cv::Scalar(0, 0, 0));
+    // Create canvas
+    cv::Mat asciiImage(asciiRows * charHeight, asciiCols * charWidth, CV_8UC3, cv::Scalar(0, 0, 0));
+
+    // cout << "ascii Cols: " << asciiCols << "\n";
+    // cout << "Gray.cols: " << gray.cols << "\n";
+    // cout << "ascii Rows: " << asciiRows << "\n";
+    // cout << "Gray.rows: " << gray.rows << "\n";
 
     // ASCII art generation
-    for (int i = 0; i < gray.rows; i += scale) {
-        for (int j = 0; j < gray.cols; j += scale) {
-            // Ave pixel intensity for the block
+    for (int i = 0; i < (gray.rows); i += scale) {
+        for (int j = 0; j < (gray.cols); j += scale) {
             int pixelValue = calcAverage(gray, i, j, scale);
-            // Intensity is mapped to a character
             char asciiChar = grayScaleChars[ceil((grayScaleChars.length() - 1) * pixelValue / 255)];
             asciiArt << asciiChar;
-            // Character gets rendered on the blank image canvas
             string text(1, asciiChar);
             int x = (j / scale) * charWidth;
             int y = (i / scale + 1) * charHeight;
-            cv::putText(asciiImage, text, cv::Point(x, y), cv::FONT_HERSHEY_SIMPLEX, fontScale, cv::Scalar(255, 255, 255), fontThickness);
+            cv::putText(asciiImage, text, cv::Point(x, y), cv::FONT_HERSHEY_SIMPLEX, 
+                        fontScale, cv::Scalar(255, 255, 255), fontThickness);
         }
         asciiArt << "\n";
     }
 
-    // Displays the ASCII image
+    // Resize ASCII image to match original dimensions
+    if (asciiImage.cols != gray.cols || asciiImage.rows != gray.rows) {
+        cv::resize(asciiImage, asciiImage, cv::Size(gray.cols, gray.rows), 0, 0, cv::INTER_NEAREST);
+    }
+
     cv::imshow("ASCII Art", asciiImage);
     cout << asciiArt.str() << endl;
 }
@@ -70,7 +98,7 @@ void IMGProcessor::compressImg(const cv::Mat &image, int k, cv::Mat &compressedI
         return;
     }
 
-    // Convert to grayscale and floating-point
+    // Convert to grayscale and float
     cv::Mat gray;
     cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
     cv::Mat grayFloat;
