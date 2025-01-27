@@ -1,3 +1,41 @@
+/**
+ * @file main.cpp
+ * @brief Main entry point for the JPG to ASCII converter application.
+ *
+ * This file contains the main function which loads an image, processes it,
+ * and displays the original image and its ASCII art representation.
+ *
+ * Usage:
+ * 1. Navigate to the build directory:
+ *    @code
+ *    cd build
+ *    @endcode
+ * 2. Generate build files using CMake:
+ *    @code
+ *    cmake ..
+ *    @endcode
+ * 3. Build the project:
+ *    @code
+ *    cmake --build .
+ *    @endcode
+ * 4. Run the executable:
+ *    @code
+ *    ./JPG_TO_ASCII
+ *    @endcode
+ *
+ * The program performs the following steps:
+ * 1. Loads an image from the specified file path.
+ * 2. Checks if the image is loaded successfully.
+ * 3. Creates an instance of the IMGProcessor class.
+ * 4. Displays the original image.
+ * 5. Converts the image to ASCII art and displays it.
+ *
+ * @note Ensure that the OpenCV library is properly installed and linked.
+ * @note The image file path should be correct and the image should exist at the specified location.
+ *
+ * @author Alyssa DiTroia
+ * @date January 2026
+ */
 #include "ImgProcessor.h"
 
 /*
