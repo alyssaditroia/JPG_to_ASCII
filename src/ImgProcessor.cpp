@@ -1,5 +1,18 @@
+/**
+ * @file ImgProcessor.cpp
+ * @brief Implementation of image processing functions for converting images to ASCII art and compressing images using SVD.
+ */
+
 #include "ImgProcessor.h"
 
+/**
+ * @brief Converts a given image to ASCII art and displays it.
+ * 
+ * This function takes an input image, converts it to grayscale if necessary, and then generates an ASCII art representation
+ * of the image. The ASCII art is displayed in a window and also printed to the console.
+ * 
+ * @param image The input image to be converted to ASCII art.
+ */
 void IMGProcessor::convertToASCII(const cv::Mat &image) {
     const string grayScaleChars = " `.-':_,=+!*s#$%@";
     cv::Mat gray;
@@ -80,7 +93,18 @@ void IMGProcessor::convertToASCII(const cv::Mat &image) {
     cv::imshow("ASCII Art", asciiImage);
     cout << asciiArt.str() << endl;
 }
-
+/**
+ * @brief Calculates the average pixel value in a block of the image.
+ * 
+ * This helper function computes the average pixel value within a specified block of the image. It is used to determine
+ * the corresponding ASCII character for that block.
+ * 
+ * @param image The input image.
+ * @param row The starting row of the block.
+ * @param col The starting column of the block.
+ * @param scale The size of the block.
+ * @return The average pixel value of the block.
+ */
 int IMGProcessor::calcAverage(const cv::Mat &image, int row, int col, int scale) {
     int sum = 0, pixelCount = 0;
     for (int r = row; r < row + scale && r < image.rows; ++r) {
@@ -91,7 +115,16 @@ int IMGProcessor::calcAverage(const cv::Mat &image, int row, int col, int scale)
     }
     return pixelCount > 0 ? sum / pixelCount : 0;
 }
-
+/**
+ * @brief Compresses a given image using Singular Value Decomposition (SVD).
+ * 
+ * This function compresses the input image by retaining only the top-k singular values from its SVD decomposition.
+ * The compressed image is reconstructed and normalized for display.
+ * 
+ * @param image The input image to be compressed.
+ * @param k The number of singular values to retain.
+ * @param compressedImage The output compressed image.
+ */
 void IMGProcessor::compressImg(const cv::Mat &image, int k, cv::Mat &compressedImage) {
     if (image.empty()) {
         cout << "Image is empty or could not be loaded!" << endl;
